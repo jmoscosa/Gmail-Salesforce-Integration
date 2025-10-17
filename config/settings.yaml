@@ -1,0 +1,4 @@
+query: "category:promotions is:unread"
+max_results: 25
+use_labels: false
+labels: []

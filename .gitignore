@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+.cache/
+.dist-info/
+build/
+dist/
+.coverage
+.pytest_cache/
+
+# Credentials / local
+.credentials/
+*.sqlite
+.secrets/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# build/metadata
+*.egg-info/
+*.dist-info/

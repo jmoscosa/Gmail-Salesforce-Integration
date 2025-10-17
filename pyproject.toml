@@ -1,0 +1,36 @@
+[project]
+name = "gmail-salesforce-sync"
+version = "0.1.0"
+description = "Sync promotional senders from Gmail to Salesforce Contacts (create/update)."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Jesus Moscosa" }]
+license = { text = "MIT" }
+dependencies = [
+    "google-api-python-client>=2.184.0",
+    "google-auth>=2.41.1",
+    "google-auth-oauthlib>=1.2.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+  "black>=24.8",
+  "isort>=5.13",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]

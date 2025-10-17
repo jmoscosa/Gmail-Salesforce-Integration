@@ -1,0 +1,6 @@
+__title__ = "gmail-salesforce-integration"
+__version__ = "0.1.0"
+__title__ = "Sync promotional emails to Salesforce."
+__author__ = "Jesus Moscosa"
+__email__ = "jmoscosa@jexmoenterprise.com"
+__license__ = "MIT"
