@@ -13,7 +13,8 @@ dist/
 # Credentials / local
 .credentials/
 *.sqlite
-.secrets/
+.secrets/*
+!.secrets/salesforce.json.example
 
 # OS / editor
 .DS_Store
