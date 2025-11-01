@@ -4,6 +4,8 @@ from typing import Optional, Any, Dict
 
 # Path to the default Salesforce configuration file in the user's home directory
 DEFAULT_CONFIG_PATH = ".secrets/salesforce.json"
+# Salesforce API version to use
+API_VERSION = "v62.0"
 
 class Secrets:
     """
