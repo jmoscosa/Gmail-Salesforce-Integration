@@ -1,9 +1,20 @@
 from __future__ import annotations
 import argparse, requests
+from typing import Optional
 from .config import Secrets 
 from .auth import SalesforceAuth
 
-def auth_check(profile: str, secrets_file: str | None) -> dict:
+def auth_check(profile: str, secrets_file: Optional[str]) -> dict:
+    """
+    Authenticate with Salesforce and fetch user identity information.
+
+    Parameters:
+        profile (str): The profile name in the secrets file (e.g., 'dev', 'stage', 'prod').
+        secrets_file (str | None): Path to the secrets JSON file. If None, uses the default path.
+
+    Returns:
+        dict: A dictionary containing instance URL, username, user ID, organization ID, token expiry, API version, and profile.
+    """
     secrets = Secrets(path=secrets_file, profile=profile)
     auth = SalesforceAuth(secrets=secrets)
     token = auth.access_token
