@@ -13,7 +13,7 @@ class SalesforceAuth:
         :param secrets: Secrets configuration object.
         :param default_expires_in: Default expiry time (in seconds) for access tokens if not provided by Salesforce (default: 3600).
         """
-        s = secrets.get 
+        s = secrets.get
         self.login_url = s("SF_LOGIN_URL", "https://login.salesforce.com")
         self.instance_url_cfg = s("SF_INSTANCE_URL")
         self.api_version = s("SF_API_VERSION", "v61.0")
@@ -87,3 +87,20 @@ class SalesforceAuth:
                     "instance_url missing. Add SF_INSTANCE_URL to secrets or ensure the token response includes it."
                 )
             return
+    @classmethod
+    def get_session(cls, *, secrets_path: str | None = None, profile: str = "dev"):
+        """
+        Returns a simple authenticated session with a base_url attribute set to the
+        Salesforce instance URL and Authorization header preconfigured.
+        """
+        secrets = Secrets(path=secrets_path, profile=profile)
+        auth = cls(secrets=secrets)
+
+        sess = requests.Session()
+        sess.headers.update({
+            "Authorization": f"Bearer {auth.access_token}",
+            "Content-Type": "application/json"
+        })
+        # Attach base_url so http.sf_request can compose full URLs
+        sess.base_url = auth.instance_url  # type: ignore[attr-defined]
+        return sess
