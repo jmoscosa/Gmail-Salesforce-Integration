@@ -1,0 +1,33 @@
+{
+  "profiles": {
+    "dev": {
+      "SF_LOGIN_URL": "https://login.salesforce.com",
+      "SF_INSTANCE_URL": "https://YOUR-DEV.my.salesforce.com",
+      "SF_API_VERSION": "v61.0",
+
+      // --- Choose ONE auth flow ---
+
+      // Refresh Token flow:
+      "SF_CLIENT_ID": "YOUR_CONNECTED_APP_CONSUMER_KEY",
+      "SF_CLIENT_SECRET": "YOUR_CONNECTED_APP_CONSUMER_SECRET",
+      "SF_REFRESH_TOKEN": "YOUR_REFRESH_TOKEN"
+
+      // OR JWT flow:
+      // "SF_CLIENT_ID": "YOUR_CONNECTED_APP_CONSUMER_KEY",
+      // "SF_USERNAME": "you@company.com",
+      // "SF_PRIVATE_KEY_PATH": "./keys/salesforce_jwt.pem",
+      // "SF_AUDIENCE": "https://login.salesforce.com"
+    },
+
+    "prod": {
+      "SF_LOGIN_URL": "https://login.salesforce.com",
+      "SF_INSTANCE_URL": "https://YOUR-PROD.my.salesforce.com",
+      "SF_API_VERSION": "v61.0",
+
+      // One auth flow here as well
+      "SF_CLIENT_ID": "xxx",
+      "SF_CLIENT_SECRET": "xxx",
+      "SF_REFRESH_TOKEN": "xxx"
+    }
+  }
+}

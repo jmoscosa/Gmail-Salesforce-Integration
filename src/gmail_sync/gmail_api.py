@@ -28,11 +28,11 @@ def get_metadata_headers(service, message_id: str) -> Dict[str, str]:
             userId="me", id=message_id, format="metadata", metadataHeaders=["From", "Subject", "Date"]
             ).execute()
         headers = {h["name"]: h["value"] for h in msg.get("payload", {}).get("headers", []) if h["name"] in {"From", "Subject", "Date"}}
-        return {"Id": msg.get("id", ""),
-                "From": headers.get("From", ""),
-                "Subject": headers.get("Subject", ""),
-                "Date": headers.get("Date", ""),
-                "Snippet": msg.get("snippet", "")}
+        return {"message_id": msg.get("id", ""),
+                "sender": headers.get("From", ""),
+                "subject": headers.get("Subject", ""),
+                "date_received": headers.get("Date", ""),
+                "snippet": msg.get("snippet", "")}
     except HttpError as error:
         print(f"An error occurred: {error}")
         return {}

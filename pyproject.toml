@@ -7,9 +7,11 @@ requires-python = ">=3.11"
 authors = [{ name = "Jesus Moscosa" }]
 license = { text = "MIT" }
 dependencies = [
+    "duckdb>=1.4.4",
     "google-api-python-client>=2.184.0",
     "google-auth>=2.41.1",
     "google-auth-oauthlib>=1.2.2",
+    "requests>=2.32.0",
 ]
 
 [project.optional-dependencies]
