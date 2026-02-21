@@ -11,6 +11,8 @@ dist/
 .pytest_cache/
 
 # Credentials / local
+.mcp.json
+settings.local.json
 .credentials/
 *.sqlite
 .secrets/*
