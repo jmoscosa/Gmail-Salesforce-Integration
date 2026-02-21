@@ -77,10 +77,10 @@ class GmailRepo:
         """
         self.ensure_schema()
 
-        sql = f"SELECT message_id, sender, subject, date_received, snippet FROM {self._qual()}"
-        results = self.backend.fetchall(sql)
-        out: List[Dict[str, str]] = [] 
-        for (mid, sender, subject, date_received, snippet) in results[:limit]:
+        sql = f"SELECT message_id, sender, subject, date_received, snippet FROM {self._qual()} LIMIT ?"
+        results = self.backend.fetchall(sql, [limit])
+        out: List[Dict[str, str]] = []
+        for (mid, sender, subject, date_received, snippet) in results:
             out.append({
                 "message_id": mid,
                 "sender": sender,
