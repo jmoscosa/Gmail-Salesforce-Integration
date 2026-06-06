@@ -15,7 +15,7 @@ TOKEN_FILE: Final[Path] = SECRETS_DIR / "token.json"
 # Scope * If switching scopes, delete the token.json file and re-authenticate.
 SCOPES: Final[list[str]] = ["https://www.googleapis.com/auth/gmail.readonly"]
 
-def get_gmail_service() -> "googleapiclient.discovery.Resource":
+def get_gmail_service():
     """Authenticate and return a Gmail API service instance."""
     creds: Credentials | None = None
     if TOKEN_FILE.exists():

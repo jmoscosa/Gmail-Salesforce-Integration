@@ -39,13 +39,13 @@ def main() -> None:
         print("No messages found.")
         return
 
-    w_date = max(4, max(len(r["Date"]) for r in rows))
-    w_from = max(4, max(len(r["From"]) for r in rows))
+    w_date = max(4, max(len(r["date_received"]) for r in rows))
+    w_from = max(4, max(len(r["sender"]) for r in rows))
     header = f"{'Date':<{w_date}}  {'From':<{w_from}}  Subject"
-    print(header)   
+    print(header)
     print("-" * len(header))
     for r in rows:
-        print(f"{r['Date']:<{w_date}}  {r['From']:<{w_from}}  {r['Subject']}")
+        print(f"{r['date_received']:<{w_date}}  {r['sender']:<{w_from}}  {r['subject']}")
 
 if __name__ == "__main__":
     main() 

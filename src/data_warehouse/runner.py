@@ -1,42 +1,92 @@
 from __future__ import annotations
 import argparse
-from typing import List, Optional 
+from typing import List, Optional
 from .backends.backend import StagingBackendConfig
 from .backends.duckdb_backend import DuckDBStagingBackend, default_duckdb_path
+from .backends.postgres_backend import PostgresStagingbackend, default_postgres_dsn
 from .repos.gmail_repo import GmailRepo
+from .repos.gmail_repo_pg import GmailRepoPg
 from gmail_sync.pipeline import fetch_messages
 
-def run_once(*, query: str, label_ids: Optional[List[str]], max_results: int, db_path: str) -> None:
+
+def run_once(
+        *,
+        query: str,
+        label_ids: Optional[List[str]],
+        max_results: int,
+        backend_type: str = "duckdb",
+        db_path: str,
+        pg_dsn: str,
+        ) -> None:
     """
-    Run the data warehouse pipeline once to fetch Gmail messages and store them in the staging area.
+    Run the data warehouse pipeline once to fetch Gmail messages and store them
+    in the staging area.
     """
     # Step 1: Fetch messages from Gmail
     messages = fetch_messages(query=query, label_ids=label_ids, max_results=max_results)
     print(f"Fetched {len(messages)} messages from Gmail.")
 
     # Step 2: Store messages in the staging area
-    backend = DuckDBStagingBackend(StagingBackendConfig(dsn=db_path))
-    try:
-        repo = GmailRepo(backend=backend)
-        inserted_count = repo.upsert_raw_messages(messages)
-        print(f"[stage] Inserted {inserted_count} messages into the staging area. To DuckDB at {db_path}")
+    if backend_type == "postgres":
+        print(f"[backend] Using Postgres -> {pg_dsn}")
+        backend = PostgresStagingbackend(StagingBackendConfig(dsn=pg_dsn))
 
-        # Read back to verify landing 
-        staged = repo.read_raw_messages(limit=min(max_results, 50))
-        print(f"[verify] Verified staging of {len(staged)} messages.")
-    except Exception as e:
-        print(f"Error inserting messages: {e}")
-        raise
-    finally:
-        backend.close()
+        try:
+            repo = GmailRepoPg(backend=backend)
+            inserted_count = repo.upsert_messages(messages)
+            print(f"[stage] Inserted {inserted_count} messages into the staging area. To Postgres at {pg_dsn}")
 
-def main() -> None: 
-    p = argparse.ArgumentParser(description="Gmail -> DuckDB staging")
-    p.add_argument("--q",default="in:inbox newer_than:7d", help="Gmail search query")
+            # Read back to verify landing
+            staged = repo.read_messages(limit=min(max_results, 50))
+            print(f"[verify] Verfified {len(staged)} messages staged in integrations.gmail_messages_raw.")
+
+        except Exception as e:
+            print(f"Error inserting messages: {e}")
+            raise
+        finally:
+            backend._conn.close()
+    else:
+        print(f"[backend] Using DuckDB -> {db_path}")
+        backend = DuckDBStagingBackend(StagingBackendConfig(dsn=db_path))
+        try:
+            repo = GmailRepo(backend=backend)
+            inserted_count = repo.upsert_raw_messages(messages)
+            print(f"[stage] Inserted {inserted_count} messages into the staging area. To DuckDB at {db_path}")
+
+            # Read back to verify landing
+            staged = repo.read_raw_messages(limit=min(max_results, 50))
+            print(f"[verify] Verified staging of {len(staged)} messages.")
+        except Exception as e:
+            print(f"Error inserting messages: {e}")
+            raise
+        finally:
+            backend.close()
+
+
+def main() -> None:
+    p = argparse.ArgumentParser(description="Gmail -> staging (DuckDB or Postgres) pipeline runner")
+    p.add_argument("--q", default="in:inbox newer_than:7d", help="Gmail search query")
     p.add_argument("--labels", nargs="*", default=None, help="Gmail label IDs to filter by")
     p.add_argument("--max", type=int, default=100, help="Max number of messages to fetch")
-    p.add_argument("--db", default=default_duckdb_path(), help="Path to DuckDB database file")
-    args = p.parse_args()
-    run_once(query=args.q, label_ids=args.labels, max_results=args.max, db_path=args.db)
+    p.add_argument("--backend", choices=["duckdb", "postgres"], default="duckdb", help="Staging backend (default: duckdb)")
+    p.add_argument("--ddb", default=default_duckdb_path(), help="Path to DuckDB database file")
+    p.add_argument("--profile", default="local", help="Postgres profile from .secrets/postgres.json (default: local)")
+    p.add_argument("--pg-dsn", default=None, help="Postgres DSN override. If omitted, builds from --profile.")
 
-if __name__ == "__main__":    main()
+    args = p.parse_args()
+
+    # Resolve Postgres DSN: explicit --pg-dsn wins, otherwise build from profile
+    pg_dsn = args.pg_dsn if args.pg_dsn else default_postgres_dsn(profile=args.profile)
+
+    run_once(
+        query=args.q,
+        label_ids=args.labels,
+        max_results=args.max,
+        backend_type=args.backend,
+        db_path=args.ddb,
+        pg_dsn=pg_dsn,
+    )
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,35 @@
+services:
+  prefect-db:
+    image: postgres:16
+    container_name: prefect_db_local
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: prefect
+      POSTGRES_PASSWORD: twitch_caw_peep_odours
+      POSTGRES_DB: prefect
+    volumes:
+      - prefect_db_local_data:/var/lib/postgresql/data
+    networks:
+      - prefect_net
+
+  prefect-server:
+    image: prefecthq/prefect:3-latest
+    container_name: prefect_local
+    restart: unless-stopped
+    depends_on:
+      - prefect-db
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://prefect:twitch_caw_peep_odours@prefect-db:5432/prefect
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_API_URL: http://localhost:4200/api
+    ports:
+      - "4200:4200"
+    command: prefect server start --host 0.0.0.0
+    networks:
+      - prefect_net
+
+volumes:
+  prefect_db_local_data:
+
+networks:
+  prefect_net:
